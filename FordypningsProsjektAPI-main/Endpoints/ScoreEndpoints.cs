@@ -13,7 +13,7 @@ public static class ScoreEndpoints
         var passwordHasher = new PasswordHasher<User>();
 
         // Update HighScore
-        app.MapPost("/api/score", async (
+        app.MapPost("/api/v1/score", async (
                 UpdateHighScore req,
                 AppDbContext db,
                 HttpContext ctx,
@@ -66,7 +66,7 @@ public static class ScoreEndpoints
             })
             .RequireAuthorization();
 // Get leaderboard
-        app.MapGet("/api/leaderboard", async (AppDbContext db, ILogger<Program> logger) =>
+        app.MapGet("/api/v1/leaderboard", async (AppDbContext db, ILogger<Program> logger) =>
         {
             try
             {

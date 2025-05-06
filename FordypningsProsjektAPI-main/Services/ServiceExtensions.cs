@@ -1,10 +1,14 @@
 using System;
 using System.Text;
+using System.Threading.RateLimiting;
 using Emne9_Fordypningsprosjekt_API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -39,6 +43,23 @@ public static class ServiceExtensions
                         IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
                     };
                 });
+        
+        // Rate Limiting
+        services.AddRateLimiter(opts =>
+        {
+            opts.RejectionStatusCode = 429; // too many requests
+
+            opts.AddPolicy("loginPolicy", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,     // max attempts 5.
+                        Window = TimeSpan.FromMinutes(15),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }));
+        });
 
         // Authorization
         services.AddAuthorization();

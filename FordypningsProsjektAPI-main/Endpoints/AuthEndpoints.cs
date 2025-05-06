@@ -13,7 +13,7 @@ public static class AuthEndpoints
     {
         var passwordHasher = new PasswordHasher<User>();
 
-        var group = app.MapGroup("/api/auth")
+        var group = app.MapGroup("/api/v1/auth")
             .WithTags("Auth");
 // API endpoints
 // Registration
